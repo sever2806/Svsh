@@ -1,0 +1,41 @@
+linters-settings:
+  goimports:
+    local-prefixes: github.com/ido50/svsh
+  govet:
+    check-shadowing: true
+  misspell:
+    locale: US
+
+linters:
+  disable-all: true
+  enable:
+      - deadcode
+      - errcheck
+      - gosimple
+      - govet
+      - ineffassign
+      - staticcheck
+      - structcheck
+      - typecheck
+      - unused
+      - varcheck
+      - dogsled
+      - dupl
+      - goconst
+      - gocritic
+      - gocyclo
+      - godox
+      - goimports
+      - golint
+      - goprintffuncname
+      - gosec
+      - lll
+      - misspell
+      - nakedret
+      - prealloc
+      - scopelint
+      - stylecheck
+      - unconvert
+      - unparam
+      - whitespace
+      - wsl
