@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -187,36 +186,7 @@ func (o *Runit) Fg(svc string) error {
 		return fmt.Errorf("failed parsing logger process pid %q: %w", matches[1], err)
 	}
 
-	file, err := findLogFile(pid)
-	if err != nil {
-		return fmt.Errorf("failed finding log file: %w", err)
-	} else if file == "" {
-		return fmt.Errorf("no log file found")
-	}
-
-	cmd := exec.Command("tail", "-f", file)
-	cmd.Stdout = os.Stdout
-
-	err = cmd.Start()
-	if err != nil {
-		return fmt.Errorf("failed starting tail: %w", err)
-	}
-
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-
-		cmd.Process.Signal(<-c) // nolint: errcheck
-	}()
-
-	err = cmd.Wait()
-	if err != nil {
-		if !strings.HasPrefix(err.Error(), "signal:") {
-			return fmt.Errorf("failed tailing log: %w", err)
-		}
-	}
-
-	return nil
+	return fgProc(pid)
 }
 
 func (o *Runit) Terminate() error {

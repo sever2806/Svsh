@@ -313,6 +313,7 @@ func parseSignal(s string) (sig os.Signal, err error) {
 
 var signals = map[string]os.Signal{
 	"hup":   syscall.SIGHUP,
+	"abrt":  syscall.SIGABRT,
 	"int":   syscall.SIGINT,
 	"quit":  syscall.SIGQUIT,
 	"kill":  syscall.SIGKILL,
@@ -322,6 +323,7 @@ var signals = map[string]os.Signal{
 	"term":  syscall.SIGTERM,
 	"cont":  syscall.SIGCONT,
 	"winch": syscall.SIGWINCH,
+	"stop":  syscall.SIGSTOP,
 }
 
 func (ctx *context) autoCompleteService(s string, _ []string) []string {

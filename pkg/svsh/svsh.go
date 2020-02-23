@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
+	"syscall"
 	"time"
 )
 
@@ -128,4 +132,37 @@ func mapStrings(input []string, fn func(string) string) []string {
 	}
 
 	return output
+}
+
+func fgProc(pid int) error {
+	file, err := findLogFile(pid)
+	if err != nil {
+		return fmt.Errorf("failed finding log file: %w", err)
+	} else if file == "" {
+		return fmt.Errorf("no log file found")
+	}
+
+	cmd := exec.Command("tail", "-f", file)
+	cmd.Stdout = os.Stdout
+
+	err = cmd.Start()
+	if err != nil {
+		return fmt.Errorf("failed starting tail: %w", err)
+	}
+
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+
+		cmd.Process.Signal(<-c) // nolint: errcheck
+	}()
+
+	err = cmd.Wait()
+	if err != nil {
+		if !strings.HasPrefix(err.Error(), "signal:") {
+			return fmt.Errorf("failed tailing log: %w", err)
+		}
+	}
+
+	return nil
 }
